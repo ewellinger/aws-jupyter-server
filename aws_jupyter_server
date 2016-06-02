@@ -25,33 +25,38 @@ while getopts ":htTp:c:" opt; do
             echo -e "ERASING CONFIGURATION"
             ;;
         h)
-            echo "SYNOPSIS"
-            echo -e "\tPut SYNOPSIS here"
-            echo -e "\n"
-            echo "DESCRIPTION"
-            echo -e "\tThe Purpose of this script is to easily configure and launch a Jupyter server running on"
-            echo -e "\tAWS such that you can access it from anywhere.  You are guided through creating a password"
-            echo -e "\tand certificate. The necessary configuration settings are added to your jupyter config file "
-            echo -e "\tand a server is launched in a separate tmux session."
-            echo -e "\tPlease see the README at github.com/ewellinger/aws-jupyter-server for more information concerning"
-            echo -e "\tsetting up your instance security settings."
-            echo -e "\n"
-            echo -e "The options are as follows:"
-            echo "-p [port-number]"
-            echo -e "\t\tSpecifies the port number.  8888 is the default.\n"
-            echo "-c [certificate-name]"
-            echo -e "\t\tSpecifies the certificate file.  Default is mycert (~/.certs/mycert.pem).  This file"
-            echo -e "\t\twill be created if it doesn't already exist.\n"
-            echo "-t"
-            echo -e "\tTerminate a running jupyter server.  You also have the option of shutting down the AWS instance"
-            echo -e "\tafter the server is closed.\n"
-            echo "-T"
-            echo -e "\tDelete any existing configuration files.  Running this followed by './aws_jupyter_server' will"
-            echo -e "\tresult in a default configuation."
-            echo -e "\n"
-            echo "NOTE"
-            echo -e "\tYou may need to alter the permissions of this file to be executable using the following command:"
-            echo -e "\t\t$ chmod +x resize_ebs"
+            echo "SYNOPSIS
+	./aws_jupyter_server [-tT] [-p <port-number>] [-c <certificate-name>]
+
+
+DESCRIPTION
+	The Purpose of this script is to easily configure and launch a Jupyter server running on
+	AWS such that you can access it from anywhere.  You are guided through creating a password
+	and certificate. The necessary configuration settings are added to your jupyter config file
+	and a server is launched in a separate tmux session.
+    Script MUST be run on your AWS instance!
+
+
+The options are as follows:
+-p [port-number]
+		Specifies the port number.  8888 is the default.
+
+-c [certificate-name]
+		Specifies the certificate file.  Default is mycert (~/.certs/mycert.pem).  This file
+		will be created if it doesn't already exist.
+
+-t
+	Terminate a running jupyter server.  You also have the option of shutting down the AWS instance
+	after the server is closed.
+
+-T
+	Delete any existing configuration files.  Running this followed by './aws_jupyter_server' will
+	result in a default configuation.
+
+
+NOTE
+	You may need to alter the permissions of this file to be executable using the following command:
+		$ chmod +x resize_ebs"
             exit 1
             ;;
         \?)
@@ -150,17 +155,28 @@ fi
 # Check to see if the specified certificate already exists and create one if not
 if [ ! -f ~/.certs/$CERTNAME.pem ]; then
     cd ~/.certs
-    echo -e '\nWe need to create our SSL certificate'
-    echo -e 'The following process will ask you a variety of questions, please answer'
-    echo -e "them to the best of your ability. Enter '.' to enter no information if"
-    echo -e "you don't know what to put.\n"
+    echo -e "\nWe need to create our SSL certificate
+The following process will ask you a variety of questions, please answer
+them to the best of your ability. Enter '.' to enter no information if
+you don't know what to put.\n"
     sudo openssl req -x509 -nodes -days 365 -newkey rsa:1024 -keyout $CERTNAME.pem -out $CERTNAME.pem
 else
     echo -e "Using already created $CERTNAME.pem"
 fi
 
 # Creates our config file with any specified options
-printf '%s\n%s\n\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s' "# Jupyter Config" "# Use 'jupyter notebook --generate-config' to restore default config" "c = get_config()" "# Kernal config" "c.IPKernelApp.matplotlib = 'inline' # if you want plotting support always" "c.NotebookApp.certfile = u'$HOME/.certs/$CERTNAME.pem'" "c.NotebookApp.ip = '*'" "c.NotebookApp.open_browser = False" "c.NotebookApp.password = '$PASSWORD'" "c.NotebookApp.port = $PORT" > ~/.jupyter/jupyter_notebook_config.py
+echo "# Jupyter Config
+# Use 'jupyter notebook --generate-config' to restore default config
+
+c = get_config()
+# Kernal config
+# Set to inline if you want plotting support always
+c.IPKernelApp.matplotlib = 'inline'
+c.NotebookApp.certfile = u'/Users/$HOME/.certs/$CERTNAME.pem'
+c.NotebookApp.ip = '*'
+c.NotebookApp.open_browser = False
+c.NotebookApp.password = $PASSWORD
+c.NotebookApp.port = $PORT" > ~/.jupyter/jupyter_notebook_config.py
 
 # Make matplotlib inline default
 if [ ! -f ~/.ipython/profile_default/ipython_config.py ]; then
@@ -181,7 +197,8 @@ tmux send-keys -t notebook 'jupyter notebook' C-m
 
 echo -e "\nDone.\n"
 
-echo "To access your notebook type https://$HOSTNAME:$PORT in your browser"
-echo "NOTE: Ignore any Certificate warnings as you issued the certificate yourself"
-echo -e "\nThe Server starts at the /home/ubuntu/ipython_notebooks directory"
-echo -e "Type './aws_jupyter_server -t' to stop the server\n"
+echo -e "To access your notebook type https://$HOSTNAME:$PORT in your browser
+NOTE: Ignore any Certificate warnings as you issued the certificate yourself
+
+The Server starts at the /home/ubuntu/ipython_notebooks directory
+Type './aws_jupyter_server -t' to stop the server\n"

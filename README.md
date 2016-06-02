@@ -15,15 +15,15 @@ For the purposes of this guide we will launch from the `DSI-Template` (`ami-4be6
 
 ### Security Settings
 In order for this script to work properly and be able to access our instance through a web browser, we need to set up several specific security settings when launching our instance.  We need the following rules to be configured...
-    * `SSH` access from port 22.  
-        * This is the default port for `ssh` connections and this rule will already be configured.  `ssh` allows us to actually interface with our new instance through a terminal shell.  
-        * I would advise leaving this at port 22, but you could alter the port number and specify the new number when accessing your instance (you might do that for security reasons).  
-        * We should also specify the source as `Anywhere` and `0.0.0.0/0`.  This says that our new instance should accept `ssh` requests from any IP address.  You could, for instance, specify that your new instance only accept requests from your home and work IP addresses which would improve the security of your instance.
-    * `HTTPS` from port 443
-        * This is going to allow us to access our instance through a web browser with a secure connection.
-    * `Custom TCP Rule` from port 8888
-        * This is going to specify what port we will put at the end of our URL when accessing our Jupyter Notebook after we get it running.
-        * If we wanted to specify a different port, we would need to indicate that using the `-p` flag when running the `aws_jupyter_server` script (run `./aws_jupyter_server -h` for more information on using the script)
+* `SSH` access from port 22.  
+    * This is the default port for `ssh` connections and this rule will already be configured.  `ssh` allows us to actually interface with our new instance through a terminal shell.  
+    * I would advise leaving this at port 22, but you could alter the port number and specify the new number when accessing your instance (you might do that for security reasons).  
+    * We should also specify the source as `Anywhere` and `0.0.0.0/0`.  This says that our new instance should accept `ssh` requests from any IP address.  You could, for instance, specify that your new instance only accept requests from your home and work IP addresses which would improve the security of your instance.
+* `HTTPS` from port 443
+    * This is going to allow us to access our instance through a web browser with a secure connection.
+* `Custom TCP Rule` from port 8888
+    * This is going to specify what port we will put at the end of our URL when accessing our Jupyter Notebook after we get it running.
+    * If we wanted to specify a different port, we would need to indicate that using the `-p` flag when running the `aws_jupyter_server` script (run `./aws_jupyter_server -h` for more information on using the script)
 
  ![](./img/launch-instance.png)
 

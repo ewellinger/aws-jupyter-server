@@ -172,10 +172,10 @@ c = get_config()
 # Kernal config
 # Set to inline if you want plotting support always
 c.IPKernelApp.matplotlib = 'inline'
-c.NotebookApp.certfile = u'/Users/$HOME/.certs/$CERTNAME.pem'
+c.NotebookApp.certfile = u'$HOME/.certs/$CERTNAME.pem'
 c.NotebookApp.ip = '*'
 c.NotebookApp.open_browser = False
-c.NotebookApp.password = $PASSWORD
+c.NotebookApp.password = '$PASSWORD'
 c.NotebookApp.port = $PORT" > ~/.jupyter/jupyter_notebook_config.py
 
 # Make matplotlib inline default
